@@ -16,7 +16,7 @@ jobs:
         run: |
           since=$(date -u -d "24 hours ago" +"%Y-%m-%dT%H:%M:%SZ")
           check_app=$(curl -s "https://api.github.com/repos/DokiTeam/Doki/commits?since=$since" | jq -r 'length')
-          check_exts=$(curl -s "https://api.github.com/repos/DokiTeam/doki-exts/commits?since=$since" | jq -r 'length')
+          check_exts=$(curl -s "https://api.github.com/repos/thefirst632student/doki-exts/commits?since=$since" | jq -r 'length')
           if [ "$check_app" -gt "0" ] || [ "$check_exts" -gt "0" ]; then
             echo "has_changes=true" >> $GITHUB_OUTPUT
           else
@@ -28,11 +28,4 @@ jobs:
     needs: check
     if: needs.check.outputs.should_build == 'true'
     uses: ./.github/workflows/build_release.yml
-    secrets: inherit
-
-  build_legacy:
-    name: 🚀 Trigger Legacy builds
-    needs: check
-    if: needs.check.outputs.should_build == 'true'
-    uses: ./.github/workflows/build_legacy.yml
     secrets: inherit
