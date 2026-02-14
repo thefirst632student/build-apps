@@ -7,7 +7,3 @@ jobs:
   build_release:
     name: Trigger Release builds 🚀
     uses: ./.github/workflows/build_release.yml
-
-  build_legacy:
-    name: Trigger Legacy builds 🚀
-    uses: ./.github/workflows/build_legacy.yml
