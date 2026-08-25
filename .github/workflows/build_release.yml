@@ -43,22 +43,38 @@ jobs:
       - name: Setup Android SDK 🚀
         uses: android-actions/setup-android@v3
 
-      - name: Build Release APK (Attempt 1) 💻
+      - name: Get Extension SHA and Build Release APK (Attempt 1) 💻
         run: |
+          EXT_SHA=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" -H "Accept: application/vnd.github.sha" https://api.github.com/repos/thefirst632student/doki-exts/commits/base | cut -c -10)
+          
+          if [[ ! "$EXT_SHA" =~ ^[0-9a-f]{7,10}$ ]]; then
+            echo "Error: Failed to fetch valid SHA, received: $EXT_SHA"
+            exit 1
+          fi
+          
+          echo "Successfully fetched extension SHA: $EXT_SHA"
+          
           ./gradlew assembleRelease \
           -Dtg_backup_bot_token=$(curl -s https://dragonx943.github.io/waydroid_x86_64/value.json) \
           -Dgh_username=${{ github.repository_owner }} \
-          -Dexts=$(curl -s https://api.github.com/repos/thefirst632student/doki-exts/commits/base -H "Accept: application/vnd.github.sha" | cut -c -10)
+          -Dexts=$EXT_SHA
         continue-on-error: true
 
       - name: Build Release APK (Attempt 2) 💻
         run: |
           if [ ! -f ${{ env.APK_PATH }} ]; then
+            EXT_SHA=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" -H "Accept: application/vnd.github.sha" https://api.github.com/repos/thefirst632student/doki-exts/commits/base | cut -c -10)
+            
+            if [[ ! "$EXT_SHA" =~ ^[0-9a-f]{7,10}$ ]]; then
+              echo "Error: Failed to fetch valid SHA on attempt 2, received: $EXT_SHA"
+              exit 1
+            fi
+            
             pkill -f java &&
             ./gradlew assembleRelease \
               -Dtg_backup_bot_token=$(curl -s https://dragonx943.github.io/waydroid_x86_64/value.json) \
               -Dgh_username=${{ github.repository_owner }} \
-              -Dexts=$(curl -s https://api.github.com/repos/thefirst632student/doki-exts/commits/base -H "Accept: application/vnd.github.sha" | cut -c -10)
+              -Dexts=$EXT_SHA
           else
             echo "✅ Release build already exists, skipping build attempt 2";
           fi
@@ -67,11 +83,18 @@ jobs:
       - name: Build Release APK (Attempt 3) 💻
         run: |
           if [ ! -f ${{ env.APK_PATH }} ]; then
+            EXT_SHA=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" -H "Accept: application/vnd.github.sha" https://api.github.com/repos/thefirst632student/doki-exts/commits/base | cut -c -10)
+            
+            if [[ ! "$EXT_SHA" =~ ^[0-9a-f]{7,10}$ ]]; then
+              echo "Error: Failed to fetch valid SHA on attempt 3, received: $EXT_SHA"
+              exit 1
+            fi
+            
             pkill -f java &&
             ./gradlew assembleRelease \
               -Dtg_backup_bot_token=$(curl -s https://dragonx943.github.io/waydroid_x86_64/value.json) \
               -Dgh_username=${{ github.repository_owner }} \
-              -Dexts=$(curl -s https://api.github.com/repos/thefirst632student/doki-exts/commits/base -H "Accept: application/vnd.github.sha" | cut -c -10)
+              -Dexts=$EXT_SHA
           else
             echo "✅ Release build already exists, skipping build attempt 3";
           fi
